@@ -1,0 +1,20 @@
+version: 0.1
+function:
+  name: mito
+  command: uname
+  arguments:
+    - "-q"
+  parameters:
+    - name: parameter1
+      value: value1
+    - name: parameter2
+      value: value2
+io:
+  input:
+    data:
+      is_pointer: true
+      content: "s3://<some_path>"
+  output:
+    data:
+      is_pointer: true
+      content: "s3://"
