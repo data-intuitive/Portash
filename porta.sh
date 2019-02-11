@@ -218,6 +218,15 @@ main() {
   # Read standard input or file as first argument
   [ $# -ge 0 -a -f "$1"  ] && input="$(cat $1)" && shift || input="$(cat)"
 
+  # Merge $input with defaults.yaml if the latter exists
+  defaults="defaults.yaml"
+  if [ -f "$defaults" ]; then
+    echo "$input" > /tmp/inputf.yaml
+    inputf="/tmp/inputf.yaml"
+    input=$(yq m -x "$defaults" "$inputf")
+    rm /tmp/inputf.yaml
+  fi
+
   # pre-hook execution if present
   prehook=$(get_path "$input" "function.pre-hook")
   if ! [[ -z "$prehook" || "$prehook" =~ ^(null)$ ]]; then
