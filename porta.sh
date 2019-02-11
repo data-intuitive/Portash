@@ -211,8 +211,23 @@ main() {
   # See if this is a dry-run or not
   if [ "$1" == "dry-run" ]; then
     DRY=true
-    echo "Dry mode on, prefixing everything with '""$PREFIX""'"
+    echo ">> Dry mode on, prefixing everything with '""$PREFIX""'"
     shift
+  fi
+
+  # See if this is a request for the default config
+  if [ "$1" == "config" ]; then
+    DRY=true
+    echo ">> Default config requested..."
+    defaults="defaults.yaml"
+    if [ -f "$defaults" ]; then
+      cat "$defaults"
+    else
+      echo "No config available"
+    fi
+
+
+    exit 0
   fi
 
   # Read standard input or file as first argument
