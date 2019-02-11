@@ -220,7 +220,6 @@ main() {
 
   # pre-hook execution if present
   prehook=$(get_path "$input" "function.pre-hook")
-  echo "$prehook"
   if ! [[ -z "$prehook" || "$prehook" =~ ^(null)$ ]]; then
     prehook_output=$(runner "$prehook")
   else
@@ -238,7 +237,6 @@ main() {
 
   # pre-hook execution if present
   posthook=$(get_path "$input" "function.post-hook")
-  echo "$posthook"
   if ! [[ -z "$posthook" || "$posthook" =~ ^(null)$ ]]; then
     posthook_output=$(runner "$posthook")
   else
