@@ -8,6 +8,9 @@
 
 echoerr() { echo "$@" 1>&2; }
 
+# Prefix for dry-running
+PREFIX='echo Running command: '
+
 show_usage() {
   echo "Usage: "$0" [dry-run]"
   echo ""
@@ -36,6 +39,21 @@ put_path() {
   local path=$2
   local content=$3
   out=$(echo "$input" | yq w - "$2" "$3" 2> /dev/null)
+  ret=$?
+  if [ $ret -ne 0 ]; then
+    echoerr "YAML/JSON parsing error in put_path(), please check input"
+    exit 1
+  else
+    echo "$out"
+  fi
+}
+
+# Add content
+add_path() {
+  local input=$1
+  local path=$2
+  local content=$3
+  out=$(echo "$input" | yq w - "$2""[+]" "$3" 2> /dev/null)
   ret=$?
   if [ $ret -ne 0 ]; then
     echoerr "YAML/JSON parsing error in put_path(), please check input"
@@ -167,13 +185,12 @@ parse_parameters() {
 # Actual RUN function...
 runner() {
   local commandline="$@"
+  local LOCALPREFIX=''
   if [ "$DRY" = true ]
   then
-    PREFIX='echo Running command: '
-  else
-    PREFIX=''
+    LOCALPREFIX="$PREFIX"
   fi
-  OUT=$($PREFIX$commandline 2> /tmp/err.log)
+  OUT=$($LOCALPREFIX$commandline 2> /tmp/err.log)
   echo "$OUT"
 }
 
@@ -194,20 +211,42 @@ main() {
   # See if this is a dry-run or not
   if [ "$1" == "dry-run" ]; then
     DRY=true
-    echo "Dry mode on, prefixing everything with 'echo'"
+    echo "Dry mode on, prefixing everything with '""$PREFIX""'"
     shift
   fi
 
   # Read standard input or file as first argument
   [ $# -ge 0 -a -f "$1"  ] && input="$(cat $1)" && shift || input="$(cat)"
 
+  # pre-hook execution if present
+  prehook=$(get_path "$input" "function.pre-hook")
+  echo "$prehook"
+  if ! [[ -z "$prehook" || "$prehook" =~ ^(null)$ ]]; then
+    prehook_output=$(runner "$prehook")
+  else
+    prehook_output="No pre-hook specified"
+  fi
+  parsed=$(add_path "$input" "output.result" "$prehook_output")
+
+  # Actual command
   # Run through parser
   commandline=$(parser "$input")
   # Run command
   output=$(runner "$commandline")
+  # Append output to config (may not be required)
+  parsed=$(add_path "$parsed" "output.result" "$output")
 
-  # Append output and errors to config (may not be required)
-  parsed=$(put_path "$input" "output.result" "$output")
+  # pre-hook execution if present
+  posthook=$(get_path "$input" "function.post-hook")
+  echo "$posthook"
+  if ! [[ -z "$posthook" || "$posthook" =~ ^(null)$ ]]; then
+    posthook_output=$(runner "$posthook")
+  else
+    posthook_output="No post-hook specified"
+  fi
+  parsed=$(add_path "$parsed" "output.result" "$posthook_output")
+
+  # Append errors to config
   err=$(cat /tmp/err.log)
   parsed=$(put_path "$parsed" "output.error" "$err")
   echo "$parsed"
