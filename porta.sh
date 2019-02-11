@@ -221,10 +221,14 @@ main() {
   # Merge $input with defaults.yaml if the latter exists
   defaults="defaults.yaml"
   if [ -f "$defaults" ]; then
-    echo "$input" > /tmp/inputf.yaml
-    inputf="/tmp/inputf.yaml"
-    input=$(yq m -x "$defaults" "$inputf")
-    rm /tmp/inputf.yaml
+    if ! [ -z "$input" ]; then
+      echo "$input" > /tmp/inputf.yaml
+      inputf="/tmp/inputf.yaml"
+      input=$(yq m "$inputf" "$defaults")
+      rm /tmp/inputf.yaml
+    else
+      input=$(cat "$defaults")
+    fi
   fi
 
   # pre-hook execution if present
