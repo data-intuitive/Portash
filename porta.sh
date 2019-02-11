@@ -57,7 +57,10 @@ nr_arguments() {
     exit 1
   fi
   # Number of arguments
-  local N=$(echo "$arguments" | yq r - '[*]' | wc -l | xargs)
+  local N=0
+  if [ "$arguments" != "null" ]; then
+    N=$(echo "$arguments" | yq r - '[*]' | wc -l | xargs)
+  fi
   echo -n "$N"
 }
 
@@ -77,14 +80,18 @@ parse_arguments() {
     echoerr "YAML/JSON parsing error in parse_arguments(), please check input"
     exit 1
   fi
-  # Loop over members of argument array
-  for ((i=0; i<$N; i++))
-  do
-    local this_path="$path"\[$i\]
-    local this_argument=$(get_path "$input" "$this_path")
-    echo -n $(get_path "$this_argument")
-    echo -n " "
-  done
+  if [ "$N" -gt 0 ]; then
+    # Loop over members of argument array
+    for ((i=0; i<$N; i++))
+    do
+      local this_path="$path"\[$i\]
+      local this_argument=$(get_path "$input" "$this_path")
+      echo -n $(get_path "$this_argument")
+      echo -n " "
+    done
+  else
+    echo ""
+  fi
 }
 
 # Parse 1 parameter hash [name -> value]
