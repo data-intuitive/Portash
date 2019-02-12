@@ -24,22 +24,6 @@ __Portash__ is what separates them from each other. You enter the container via
 Oh, and did I mention already that I hate it when people have to choose between
 `YAML` and `JSON` for structured data?!
 
-### What it is not (yet?)
-
-The current intention is not to make it a universal runner script for all sorts 
-of tasks. Rather, we estimate the `porta.sh` script will be modified on a 
-per-project/function basis.
-
-In other words, __Portash__ could be seen as a template for writing
-Docker/Singularity _entrypoint_ scripts.
-
-Having said that, it does allow for something similar to that. Take a look at 
-the following run for instance:
-
-```
-./porta.sh example example/uname-working.yaml
-```
-
 ### Dependencies
 
 __Portash__ is heavily dependent on 
@@ -51,6 +35,8 @@ command line.
 
 Done:
 
+- Dry-run and config parameters
+- defaults config and merging with additional config
 - Parsing individual _paths_ in the config
 - Parsing arguments (array of keywoards/options)
 - Parsing parameters (array of name/value hashes)
@@ -59,8 +45,80 @@ Done:
 
 To do:
 
-- Add current job configuration to the log tag at the end.
 - Install `yq` prior to processing if not available.
+
+## Use
+
+Portash is very much created in the spirit of a UNIX command line tool. It 
+takes standard input if no input file is provided as an argument and returns 
+standard output by default. That's the default way of working, for example:
+
+```
+./porta.sh defaults.yaml
+```
+
+This starts Portash using the config provided in `defaults.yaml`. Don't worry, 
+this configuration is just a fancy way of running `uname -a`.
+
+Exactly the same can be obtained using UNIX pipes:
+
+```
+cat defaults.yaml | ./porta.sh
+```
+
+### Dry-run
+
+In order to know what commands will be executed, a `dry-run` argument can be 
+provided:
+
+```
+cat defaults.yaml | ./porta.sh dry-run
+```
+
+### Default Configuration
+
+We want Portash to be useful inside containers as the _interface_ between the 
+outside world and the world of the container. To avoid the user having to know 
+what the exact configuration needs to be, Portash supports a default
+configuration.
+
+If a `defaults.yaml` file is present in the working directory, it will be used 
+as the template configuration. This template configuration will then be merged 
+with whatever custom configuration is provided at runtime. For instance, the 
+following invocations of Portash are exactly the same:
+
+```
+./porta.sh defaults.yaml
+cat defaults.yaml | ./porta.sh
+echo '' | ./porta.sh
+```
+
+This way, simple modifications to the configuration can be expressed without 
+too much hassle as we will show below.
+
+### `YAML`/`JSON`
+
+People shouldn't have to choose between both formats. `YAML` is handy because 
+we can include comments, but for simple customizations of a job the following 
+syntax could be used:
+
+```
+echo '{"function":{"name":"My fancy function name"}}' | ./porta.sh
+```
+
+### Effective Configuration
+
+An argument is available to retrieve the effective configuration for a job:
+
+```
+echo '{"function":{"name":"My fancy function name"}}' | ./porta.sh config
+```
+
+### Hooks
+
+Two hooks are available: `pre-hook` and `post-hook` for running scripts before 
+and after the actual `command`. You can provide either a script filename or a 
+script (multi-line is supported).
 
 ## Examples
 
