@@ -1,0 +1,6 @@
+function:
+  name: argument_test_input
+  command: foo
+  arguments:
+    - first_argument
+    - second_argument
