@@ -83,7 +83,6 @@ nr_arguments() {
 }
 
 # Parse all arguments in an array
-# Input:
 #   - YAML/JSON blob
 #   - path to the array
 # Output: string with all arguments
@@ -145,12 +144,14 @@ nr_parameters() {
   if [ $ret -ne 0 ]; then
     echoerr "YAML/JSON parsing error in nr_parameters(), please check input"
     exit 1
-  else
-    # Number of parameters
-    local N=$(echo "$parameters" | yq r - '[*].name' | wc -l | xargs)
-    echo -n "$N"
   fi
-}
+  local N=0
+  if [ "$parameters" != "null" ]; then
+    # Number of parameters
+    N=$(echo "$parameters" | yq r - '[*].name' | wc -l | xargs)
+  fi
+  echo -n "$N"
+ }
 
 # Parse all parameters in an array
 # Input:
@@ -169,14 +170,17 @@ parse_parameters() {
     exit 1
   fi
   # Loop over members of parameter array
-  for ((i=0; i<$N; i++))
-  do
-    local this_path="$path"\[$i\]
-    local this_parameter=$(get_path "$input" "$this_path")
-    # echo "$this_path"
-    echo -n $(parse_parameter "$this_parameter")
-    echo -n " "
-  done
+  if [ "$N" -gt 0 ]; then
+    for ((i=0; i<$N; i++))
+    do
+      local this_path="$path"\[$i\]
+      local this_parameter=$(get_path "$input" "$this_path")
+      echo -n $(parse_parameter "$this_parameter")
+      echo -n " "
+    done
+  else
+    echo ""
+  fi
 }
 
 # End of generic part
@@ -199,7 +203,8 @@ parser() {
   local input=$1
   command=$(get_path "$input" "function.command")
   arguments=$(parse_arguments "$input" "function.arguments")
-  echo "$command $arguments"
+  parameters=$(parse_parameters "$input" "function.parameters")
+  echo "$command $arguments $parameters"
 }
 
 # main function
@@ -211,19 +216,19 @@ main() {
   # See if this is a dry-run or not
   if [ "$1" == "dry-run" ]; then
     DRY=true
-    echo ">> Dry mode on, prefixing everything with '""$PREFIX""'"
+    echoerr ">> Dry mode on, prefixing everything with '""$PREFIX""'"
     shift
   fi
 
   # See if this is a request for the default config
   if [ "$1" == "config" ]; then
     DRY=true
-    echo ">> Default config requested..."
+    echoerr ">> Default config requested..."
     defaults="defaults.yaml"
     if [ -f "$defaults" ]; then
       cat "$defaults"
     else
-      echo "No config available"
+      echoerr ">> No config available"
     fi
 
 
