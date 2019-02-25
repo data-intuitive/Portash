@@ -68,6 +68,15 @@ Exactly the same can be obtained using UNIX pipes:
 cat defaults.yaml | ./porta.sh
 ```
 
+A Docker container can be used as well. The image is configured to run the 
+OpenFaas [`fwatchdog`](https://github.com/openfaas/faas/tree/master/watchdog) 
+process which effectively turns Portash into a web service. If you want to run 
+it in batch mode, use it like this:
+
+```
+docker run -i dataintuitive/portash porta.sh
+```
+
 ### Dry-run
 
 In order to know what commands will be executed, a `dry-run` argument can be 
