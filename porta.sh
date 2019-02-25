@@ -216,6 +216,7 @@ main() {
   # See if this is a dry-run or not
   if [ "$1" == "dry-run" ]; then
     DRY=true
+    MODE="DRY"
     echoerr ">> Dry mode on, prefixing everything with '""$PREFIX""'"
     shift
   fi
@@ -223,16 +224,9 @@ main() {
   # See if this is a request for the default config
   if [ "$1" == "config" ]; then
     DRY=true
+    MODE="CONFIG"
     echoerr ">> Default config requested..."
-    defaults="defaults.yaml"
-    if [ -f "$defaults" ]; then
-      cat "$defaults"
-    else
-      echoerr ">> No config available"
-    fi
-
-
-    exit 0
+    shift
   fi
 
   # Read standard input or file as first argument
@@ -249,6 +243,16 @@ main() {
     else
       input=$(cat "$defaults")
     fi
+  fi
+
+  # Report merged config and exit
+  if [ "$MODE" == "CONFIG" ]; then
+    if [ -f "$defaults" ]; then
+      echo "$input"
+    else
+      echoerr ">> No config available"
+    fi
+    exit 0
   fi
 
   # pre-hook execution if present
