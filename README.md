@@ -21,6 +21,8 @@ outside world of container orchestration.
 __Portash__ is what separates them from each other. You enter the container via 
 `porta.sh` and exit it again via `porta.sh`.
 
+A different way of looking at it: It's UNIX pipes on steroids.
+
 Oh, and did I mention already that I hate it when people have to choose between
 `YAML` and `JSON` for structured data?!
 
@@ -113,6 +115,9 @@ An argument is available to retrieve the effective configuration for a job:
 ```
 echo '{"function":{"name":"My fancy function name"}}' | ./porta.sh config
 ```
+
+This first merges the input with the default configuration and prints the 
+effective config to standard output.
 
 ### Hooks
 
