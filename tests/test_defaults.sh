@@ -21,5 +21,25 @@ else
   echo -n "$(tput setaf 1)NOK"
 fi
 
+approach1=$(echo -n '' | ../porta.sh dry-run 2> /dev/null)
+approach2=$(../porta.sh dry-run defaults.yaml 2> /dev/null)
+approach3=$(cat defaults.yaml | ../porta.sh dry-run 2> /dev/null)
+
+# echo
+# echo "$approach1"
+# echo
+# echo "$approach2"
+# echo
+
+# if [[ "$approach1" == "$approach2" ]]; then
+#   echo -n "$(tput setaf 2)OK "
+# else
+#   echo -n "$(tput setaf 1)NOK "
+# fi
+# if [[ "$approach2" == "$approach3" ]]; then
+#   echo -n "$(tput setaf 2)OK "
+# else
+#   echo -n "$(tput setaf 1)NOK "
+# fi
 
 echo "$(tput sgr0)"
