@@ -195,7 +195,12 @@ runner() {
     LOCALPREFIX="$PREFIX"
   fi
   OUT=$($LOCALPREFIX$commandline 2> /tmp/err.log)
+  local ret=$?
   echo "$OUT"
+  if [ $ret -ne 0 ]; then
+    echoerr "Something went wrong running: $commandline"
+    exit 1
+  fi
 }
 
 # Actual PARSER
@@ -269,6 +274,7 @@ main() {
   commandline=$(parser "$input")
   # Run command
   output=$(runner "$commandline")
+  mainret=$?
   # Append output to config (may not be required)
   parsed=$(add_path "$parsed" "output.result" "$output")
 
@@ -285,6 +291,9 @@ main() {
   err=$(cat /tmp/err.log)
   parsed=$(put_path "$parsed" "output.error" "$err")
   echo "$parsed"
+  if [ $mainret -ne 0 ]; then
+    exit 1
+  fi
 }
 
 # Some machinery to make this script easily 'sourceable' for tests
