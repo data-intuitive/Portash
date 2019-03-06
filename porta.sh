@@ -194,7 +194,7 @@ runner() {
   then
     LOCALPREFIX="$PREFIX"
   fi
-  OUT=$($LOCALPREFIX$commandline 2> /tmp/err.log)
+  OUT=$($LOCALPREFIX$commandline 2>> /tmp/err.log)
   local ret=$?
   echo "$OUT"
   if [ $ret -ne 0 ]; then
@@ -259,6 +259,9 @@ main() {
     fi
     exit 0
   fi
+
+  # Initialize error log
+  echo ">>> Start of error log" > /tmp/err.log
 
   # pre-hook execution if present
   prehook=$(get_path "$input" "function.pre-hook")
