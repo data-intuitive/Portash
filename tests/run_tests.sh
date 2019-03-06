@@ -4,3 +4,4 @@
 ./test_parameters.sh
 ./test_defaults.sh
 ./test_exit.sh
+./test_multiline.sh

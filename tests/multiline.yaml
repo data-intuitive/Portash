@@ -1,0 +1,6 @@
+function:
+  name: Default Name
+  pre-hook: |
+            uname -a
+            uname -a
+  command: uname

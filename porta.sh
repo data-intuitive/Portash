@@ -194,7 +194,10 @@ runner() {
   then
     LOCALPREFIX="$PREFIX"
   fi
-  OUT=$($LOCALPREFIX$commandline 2>> /tmp/err.log)
+  # handle the case where multiple lines are given
+  OUT=$(while read -r line; do
+          echo "$($LOCALPREFIX$line 2>> /tmp/err.log)"
+        done <<< "$commandline")
   local ret=$?
   echo "$OUT"
   if [ $ret -ne 0 ]; then
