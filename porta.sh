@@ -266,6 +266,8 @@ main() {
   # Initialize error log
   echo ">>> Start of error log" > /tmp/err.log
 
+  time_start=$(date)
+
   # pre-hook execution if present
   prehook=$(get_path "$input" "function.pre-hook")
   if ! [[ -z "$prehook" || "$prehook" =~ ^(null)$ ]]; then
@@ -292,6 +294,17 @@ main() {
     posthook_output="No post-hook specified"
   fi
   parsed=$(add_path "$parsed" "output.result" "$posthook_output")
+
+  time_complete=$(date)
+
+  parsed=$(put_path "$parsed" "output.start" "$time_start")
+  parsed=$(put_path "$parsed" "output.end" "$time_complete")
+  ok=false
+  if [ $mainret -eq 0 ]; then
+    ok=true
+  fi
+  parsed=$(put_path "$parsed" "output.ok" "$ok")
+
 
   # Append errors to config
   err=$(cat /tmp/err.log)
