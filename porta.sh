@@ -12,7 +12,15 @@ echoerr() { echo "$@" 1>&2; }
 PREFIX='echo Running command: '
 
 show_usage() {
-  echo "Usage: "$0" [dry-run]"
+  echo ""
+  echo "This script takes YAML or JSON as standard input to describe a process to be run."
+  echo ""
+  echo "  Usage: "$0" [ dry-run | config]"
+  echo ""
+  echo "  dry-run: Don't actually run the command, but 'echo' the command to be run"
+  echo "  config:  Return the effective configuration"
+  echo ""
+  echo "For more information, see: https://github.com/data-intuitive/Portash"
   echo ""
   exit 1
 }
@@ -237,8 +245,14 @@ main() {
     shift
   fi
 
-  # Read standard input or file as first argument
-  [ $# -ge 0 -a -f "$1"  ] && input="$(cat $1)" && shift || input="$(cat)"
+  # Test if standard input is effectively provided, if not show_usage
+  if ! test -t 0 ; then
+    # Read standard input or file as first argument
+    [ $# -ge 0 -a -f "$1"  ] && input="$(cat $1)" && shift || input="$(cat)"
+  else
+    show_usage
+    exit 1
+  fi
 
   # Merge $input with defaults.yaml if the latter exists
   defaults="defaults.yaml"
