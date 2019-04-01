@@ -1,0 +1,6 @@
+function:
+  name: Default Name
+  command: uname
+  test: |
+    echo -n "Content" > /tmp/tests_output.txt
+    cat /tmp/tests_output.txt

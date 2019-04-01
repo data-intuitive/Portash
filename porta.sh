@@ -15,8 +15,9 @@ show_usage() {
   echo ""
   echo "This script takes YAML or JSON as standard input to describe a process to be run."
   echo ""
-  echo "  Usage: "$0" [ dry-run | config]"
+  echo "  Usage: "$0" [ test | dry-run | config ]"
   echo ""
+  echo "  test:    Run the test(s)"
   echo "  dry-run: Don't actually run the command, but 'echo' the command to be run"
   echo "  config:  Return the effective configuration"
   echo ""
@@ -204,7 +205,7 @@ runner() {
   fi
   # handle the case where multiple lines are given
   OUT=$(while read -r line; do
-          echo "$($LOCALPREFIX$line 2>> /tmp/err.log)"
+          eval "$LOCALPREFIX$line 2>> /tmp/err.log"
         done <<< "$commandline")
   local ret=$?
   echo "$OUT"
@@ -217,7 +218,11 @@ runner() {
 # Actual PARSER
 parser() {
   local input=$1
-  command=$(get_path "$input" "function.command")
+  if [ "$MODE" == "TEST" ]; then
+    command=$(get_path "$input" "function.test")
+  else
+    command=$(get_path "$input" "function.command")
+  fi
   arguments=$(parse_arguments "$input" "function.arguments")
   parameters=$(parse_parameters "$input" "function.parameters")
   echo "$command $arguments $parameters"
@@ -234,6 +239,13 @@ main() {
     DRY=true
     MODE="DRY"
     echoerr ">> Dry mode on, prefixing everything with '""$PREFIX""'"
+    shift
+  fi
+
+  # See if this is a test or not
+  if [ "$1" == "test" ]; then
+    MODE="TEST"
+    echoerr ">> Test mode..."
     shift
   fi
 
@@ -321,6 +333,7 @@ main() {
 
 
   # Append errors to config
+  echo "<<< End of error log" >> /tmp/err.log
   err=$(cat /tmp/err.log)
   parsed=$(put_path "$parsed" "output.error" "$err")
   echo "$parsed"

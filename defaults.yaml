@@ -1,3 +1,4 @@
 function:
   name: Sample defaults.yaml
   command: uname -a
+  test: echo "Running test"
