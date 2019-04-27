@@ -33,12 +33,15 @@ __Portash__ is heavily dependent on
 as it provides the real power of dealing with `JSON`/`YAML` content from the
 command line.
 
-## Status
+## Status and Features
 
 Done:
 
+- pre and post hook scripts possible
+- Multiline scripts as main command, but also as pre and post hook
+- Provide test routine
 - Dry-run and config parameters
-- defaults config and merging with additional config
+- _defaults_ config and merging with additional config
 - Parsing individual _paths_ in the config
 - Parsing arguments (array of keywoards/options)
 - Parsing parameters (array of name/value hashes)
@@ -133,6 +136,48 @@ effective config to standard output.
 Two hooks are available: `pre-hook` and `post-hook` for running scripts before 
 and after the actual `command`. You can provide either a script filename or a 
 script (multi-line is supported).
+
+### Tests
+
+It's possible to run Portash in a test mode. For instance, given the following 
+configuration:
+
+```yaml
+function:
+  name: Default Name
+  command: uname
+  test: |
+    echo -n "Content" > /tmp/tests_output.txt
+    cat /tmp/tests_output.txt
+
+```
+
+And the following command:
+
+```sh
+$ cat tests.yaml | porta.sh test
+>> Test mode...
+function:
+  command: uname
+  name: Default Name
+  test: |
+    echo -n "Content" > /tmp/tests_output.txt
+    cat /tmp/tests_output.txt
+output:
+  result:
+  - No pre-hook specified
+  - Content
+  - No post-hook specified
+  start: Sat Apr 27 16:40:19 CEST 2019
+  end: Sat Apr 27 16:40:19 CEST 2019
+  ok: true
+  error: |-
+    >>> Start of error log
+    <<< End of error log
+```
+
+Please note that the main `command` defined is not run, but instead the `test` 
+block is executed. This can come in handy when testing pipelines for instance.
 
 ## Examples
 
