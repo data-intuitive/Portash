@@ -37,7 +37,8 @@ command line.
 
 Done:
 
-- pre and post hook scripts possible
+- Pre and post hook scripts
+- Pre and post data processing
 - Multiline scripts as main command, but also as pre and post hook
 - Provide test routine
 - Dry-run and config parameters
@@ -130,6 +131,56 @@ echo '{"function":{"name":"My fancy function name"}}' | ./porta.sh config
 
 This first merges the input with the default configuration and prints the 
 effective config to standard output.
+
+### Data Processing
+
+Data processing before and after the main process has run is supported. This is 
+the example from the tests:
+
+```yaml
+function:
+  name: io test yaml
+  command: cat data/test_input_to.tsv | sed "s/a/x/" > data/test_output_from.tsv
+io:
+  in:
+    command: tr ',' '\t' < data/test_input_from.csv > data/test_input_to.tsv
+    from:
+      from_format: csv
+      from_file: csv
+    to:
+      to_format: tsv
+      to_file: tsv
+  out:
+    command: tr '\t' ',' < data/test_output_from.tsv > data/test_output_to.csv
+    from:
+      input_format: tsv
+      input_file: tsv
+    to:
+      output_format: csv
+      output_file: csv
+
+```
+
+In this case, a `csv` file is first transformed in a `tsv` file, one character 
+is modified as the main process and then at the end the result is transformed 
+into a `tsv` file again.
+
+The `from` and `to` fields currently are not (yet) used by Portash, but may be 
+handy for documentation purposes.
+
+The situation may occur where the post-processing step involves parsing and 
+logging the YAML/JSON output from the main process. In order to achieve that, 
+this information is not only sent to standard output but also stored in two 
+files:
+
+```
+/tmp/portash-stdout.yaml
+/tmp/portash-stdout.json
+```
+
+Please note: The whole process fails when either one of these processing steps 
+results in an error. When both run successfully, the return code at the end of 
+the run is the one from the main function/process.
 
 ### Hooks
 

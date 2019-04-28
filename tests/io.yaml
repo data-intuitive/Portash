@@ -1,0 +1,20 @@
+function:
+  name: io test yaml
+  command: cat data/test_input_to.tsv | sed "s/a/x/" > data/test_output_from.tsv
+io:
+  in:
+    command: tr ',' '\t' < data/test_input_from.csv > data/test_input_to.tsv
+    from:
+      from_format: csv
+      from_file: csv
+    to:
+      to_format: tsv
+      to_file: tsv
+  out:
+    command: tr '\t' ',' < data/test_output_from.tsv > data/test_output_to.csv
+    from:
+      input_format: tsv
+      input_file: tsv
+    to:
+      output_format: csv
+      output_file: csv

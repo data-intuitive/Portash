@@ -6,3 +6,4 @@
 ./test_exit.sh
 ./test_multiline.sh
 ./test_tests.sh
+./test_io.sh

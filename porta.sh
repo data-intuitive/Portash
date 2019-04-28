@@ -289,6 +289,18 @@ main() {
     exit 0
   fi
 
+  # IO before
+  ########################################################
+  io_before=$(get_path "$input" "io.in.command")
+  if [ "$io_before" != "null" ]; then
+    run_io_before=$(runner "$io_before")
+    io_before_ret=$?
+    if [ $io_before_ret -ne 0 ]; then
+      echoerr "There's a problem with pre-processing the data"
+      exit 1
+    fi
+  fi
+
   # Initialize error log
   echo ">>> Start of error log" > /tmp/err.log
 
@@ -336,10 +348,28 @@ main() {
   echo "<<< End of error log" >> /tmp/err.log
   err=$(cat /tmp/err.log)
   parsed=$(put_path "$parsed" "output.error" "$err")
+  # store parsed in a file (for later consumption in post-processing)
+  echo "$parsed" > /tmp/portash-stdout.yaml
+  echo "$parsed" | yq r - -j > /tmp/portash-stdout.json
+  # Return parsed to standard output as well
   echo "$parsed"
+
+  # IO After
+  #######################################################
+  io_after=$(get_path "$input" "io.out.command")
+  if [ "$io_after" != "null" ]; then
+    run_io_after=$(runner "$io_after")
+    io_after_ret=$?
+    if [ $io_after_ret -ne 0 ]; then
+      echoerr "There's a problem with post-processing the data"
+      exit 1
+    fi
+  fi
+
   if [ $mainret -ne 0 ]; then
     exit 1
   fi
+
 }
 
 # Some machinery to make this script easily 'sourceable' for tests
