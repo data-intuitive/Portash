@@ -9,7 +9,7 @@ RUN apk --no-cache add curl bash \
     && chmod +x /usr/bin/fwatchdog \
     && cp /usr/bin/fwatchdog /home/app \
     && echo "Pulling porta.sh from Github." \
-    && curl -sSL https://github.com/data-intuitive/Portash/releases/download/v0.0.3/porta.sh > /usr/bin/porta.sh \
+    && curl -sSL https://github.com/data-intuitive/Portash/releases/download/v0.0.4/porta.sh > /usr/bin/porta.sh \
     && chmod +x /usr/bin/porta.sh \
     && echo "Pulling yq from Github." \
     && curl -sSL https://github.com/mikefarah/yq/releases/download/2.2.1/yq_linux_386 > /usr/bin/yq \
