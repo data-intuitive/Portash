@@ -230,6 +230,21 @@ output:
 Please note that the main `command` defined is not run, but instead the `test` 
 block is executed. This can come in handy when testing pipelines for instance.
 
+### The `extra` yaml tag
+
+It's allowed to add an additional tag to the YAML config file, for instance:
+
+```yaml
+extra:
+  - function:
+      name: nested configuration
+      command: ...
+```
+
+The YAML contents of this tag is copied to a SHELL variable `$EXTRA` inside the 
+portash run. This way, the variable can be used in the portash configuration 
+itself. Please refer to the example `yaml_subset.yaml` under `tests`.
+
 ## Examples
 
 ### Proof-of-Concept in `porta.sh`

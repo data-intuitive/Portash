@@ -304,6 +304,9 @@ main() {
   # Initialize error log
   echo ">>> Start of error log" > /tmp/err.log
 
+  # Extract 'extra' part of the config for potential later use
+  export EXTRA=$(get_path "$input" "extra")
+
   time_start=$(date)
 
   # pre-hook execution if present
