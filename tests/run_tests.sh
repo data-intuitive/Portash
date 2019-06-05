@@ -7,3 +7,4 @@
 ./test_multiline.sh
 ./test_tests.sh
 ./test_io.sh
+./test_yaml_subset.sh

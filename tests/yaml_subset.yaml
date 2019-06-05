@@ -1,0 +1,9 @@
+function:
+  name: yaml_subset_test_input
+  command: cat test.yaml | porta.sh dry-run | yq r - output.result[1]
+  pre-hook: echo "$EXTRA" > test.yaml
+  post-hook: rm test.yaml
+extra:
+  function:
+    name: nested portash config
+    command: uname -a
