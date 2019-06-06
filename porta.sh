@@ -47,7 +47,7 @@ put_path() {
   local input=$1
   local path=$2
   local content=$3
-  out=$(echo "$input" | yq w - "$2" "$3" 2> /dev/null)
+  out=$(echo "$input" | yq w - -- "$2" "$3" 2> /dev/null)
   ret=$?
   if [ $ret -ne 0 ]; then
     echoerr "YAML/JSON parsing error in put_path(), please check input"
@@ -62,10 +62,10 @@ add_path() {
   local input=$1
   local path=$2
   local content=$3
-  out=$(echo "$input" | yq w - "$2""[+]" "$3" 2> /dev/null)
+  out=$(echo "$input" | yq w - -- "$2""[+]" "$3" 2> /dev/null)
   ret=$?
   if [ $ret -ne 0 ]; then
-    echoerr "YAML/JSON parsing error in put_path(), please check input"
+    echoerr "YAML/JSON parsing error in add_path(), please check input"
     exit 1
   else
     echo "$out"
@@ -86,7 +86,7 @@ nr_arguments() {
   # Number of arguments
   local N=0
   if [ "$arguments" != "null" ]; then
-    N=$(echo "$arguments" | yq r - '[*]' | wc -l | xargs)
+    N=$(echo "$arguments" | yq r - -- '[*]' | wc -l | xargs)
   fi
   echo -n "$N"
 }
@@ -157,7 +157,7 @@ nr_parameters() {
   local N=0
   if [ "$parameters" != "null" ]; then
     # Number of parameters
-    N=$(echo "$parameters" | yq r - '[*].name' | wc -l | xargs)
+    N=$(echo "$parameters" | yq r - -- '[*].name' | wc -l | xargs)
   fi
   echo -n "$N"
  }
