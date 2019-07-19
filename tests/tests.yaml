@@ -1,6 +1,11 @@
 function:
   name: Default Name
   command: uname
+  arguments:
+    - -a
+  parameters:
+    - name: test
+      value: some_value
   test: |
     echo -n "Content" > /tmp/tests_output.txt
     cat /tmp/tests_output.txt

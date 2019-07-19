@@ -220,11 +220,13 @@ parser() {
   local input=$1
   if [ "$MODE" == "TEST" ]; then
     command=$(get_path "$input" "function.test")
+    arguments=""
+    parameters=""
   else
     command=$(get_path "$input" "function.command")
+    arguments=$(parse_arguments "$input" "function.arguments")
+    parameters=$(parse_parameters "$input" "function.parameters")
   fi
-  arguments=$(parse_arguments "$input" "function.arguments")
-  parameters=$(parse_parameters "$input" "function.parameters")
   echo "$command $arguments $parameters"
 }
 
