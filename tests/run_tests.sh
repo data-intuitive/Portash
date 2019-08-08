@@ -9,3 +9,4 @@
 ./test_io.sh
 ./test_yaml_subset.sh
 ./test_leading_dashes.sh
+./test_long.sh

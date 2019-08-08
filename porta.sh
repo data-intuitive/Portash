@@ -26,6 +26,25 @@ show_usage() {
   exit 1
 }
 
+# Helper function, based on https://stackoverflow.com/posts/16156972/revisions
+headtail() {
+  awk -v offset="$1" \
+    '{
+      if (NR <= offset)
+        print;
+      else {
+        a[NR] = $0; delete a[NR-offset] 
+      }
+    }
+    END {
+      if (length(a) > 0)
+        print "\n..... [piece cut out] .....\n";
+      for (i=NR-offset+1; i<=NR; i++) print a[i]
+    }
+    '
+}
+
+
 # Retrieve the content of a path
 # $1: the input, JSON or YAML
 # $2: string denoting the path, dots separate levels
@@ -46,8 +65,8 @@ get_path() {
 put_path() {
   local input=$1
   local path=$2
-  local content=$3
-  out=$(echo "$input" | yq w - -- "$2" "$3" 2> /dev/null)
+  local content=$( echo "$3" | headtail 50 )
+  out=$(echo "$input" | yq w - -- "$path" "$content" 2> /dev/null)
   ret=$?
   if [ $ret -ne 0 ]; then
     echoerr "YAML/JSON parsing error in put_path(), please check input"
@@ -61,8 +80,8 @@ put_path() {
 add_path() {
   local input=$1
   local path=$2
-  local content=$3
-  out=$(echo "$input" | yq w - -- "$2""[+]" "$3" 2> /dev/null)
+  local content=$( echo "$3" | headtail 50 )
+  out=$(echo "$input" | yq w - -- "$path""[+]" "$content" 2> /dev/null)
   ret=$?
   if [ $ret -ne 0 ]; then
     echoerr "YAML/JSON parsing error in add_path(), please check input"
