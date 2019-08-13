@@ -29,17 +29,22 @@ show_usage() {
 # Helper function, based on https://stackoverflow.com/posts/16156972/revisions
 headtail() {
   awk -v offset="$1" \
-    '{
+    '
+    BEGIN {
+        split("", a)
+    }
+    {
       if (NR <= offset)
-        print;
+        print
       else {
-        a[NR] = $0; delete a[NR-offset] 
+        a[NR] = $0; delete a[NR-offset]
       }
     }
     END {
       if (length(a) > 0)
-        print "\n..... [piece cut out] .....\n";
-      for (i=NR-offset+1; i<=NR; i++) print a[i]
+        print "\n..... [piece cut out] .....\n"
+      for (i=NR-offset+1; i<=NR; i++)
+        print a[i]
     }
     '
 }
