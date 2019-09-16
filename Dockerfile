@@ -17,10 +17,10 @@ RUN apk --no-cache add curl bash \
     && apk del curl --no-cache
 
 # Add non root user
-RUN addgroup -S app && adduser app -S -G app
-RUN chown app /home/app
-WORKDIR /home/app
-USER app
+# RUN addgroup -S app && adduser app -S -G app
+# RUN chown app /home/app
+# WORKDIR /home/app
+# USER app
 
 # fwatchdog config
 EXPOSE 8080
