@@ -2,8 +2,6 @@ function:
   name: arguments_test_input
   command: foo
   parameters:
-    - name: first_parameter
-      value: bar
-    - name: second_parameter
-      value: foobar
+    first_parameter: bar
+    second_parameter: foobar
 

@@ -9,16 +9,15 @@ source ../porta.sh
 [ $# -ge 0 -a -f "$1"  ] && input="$(cat $1)" && shift || input="$(cat input.yaml)"
 
 echo ">> Test fetching simple paths from input..."
-echo "function::name                = "$(get_path "$input" "function.name")
-echo "io::input::data::is_pointer   = "$(get_path "$input" "io.input.data.is_pointer")
-echo "function::parameters[0]       = "$(get_path "$input" "function.parameters[0]")
-echo "function::parameters[0].name  = "$(get_path "$input" "function.parameters[0].name")
-echo "function::parameters[0].value = "$(get_path "$input" "function.parameters[0].value")
+echo "function::name                   = "$(get_path "$input" "function.name")
+echo "io::input::data::is_pointer      = "$(get_path "$input" "io.input.data.is_pointer")
+echo "function::parameters.parameter1  = "$(get_path "$input" "function.parameters.parameter1")
 echo
 
-echo ">> Test fetching a single parameter (first one)..."
-parameter=$(get_path "$input" "function.parameters[0]")
-echo "parse parameter: "$(parse_parameter "$parameter")
+echo ">> Test fetching a single parameter"
+parameter="parameter2"
+echo "value for parameter $parameter: "$(get_path "$input" "function.parameters"."$parameter")
+echo "parse parameter: "$(parse_parameter "$input" "function.parameters" "$parameter")
 echo
 
 echo ">> Test fetching attributes"

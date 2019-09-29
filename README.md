@@ -45,7 +45,7 @@ Done:
 - _defaults_ config and merging with additional config
 - Parsing individual _paths_ in the config
 - Parsing arguments (array of keywoards/options)
-- Parsing parameters (array of name/value hashes)
+- Parsing parameters (hash)
 - Option to use `porta.sh` as the wrapper script
 - Option to use `porta.sh` as an include script (see `examples/read.sh`)
 
@@ -290,14 +290,13 @@ The result should be something like this:
 
 ```
 >> Test fetching simple paths from input...
-function::name                = mito
-io::input::data::is_pointer   = true
-function::parameters[0]       = name: parameter1 value: value1
-function::parameters[0].name  = parameter1
-function::parameters[0].value = value1
+function::name                   = mito
+io::input::data::is_pointer      = true
+function::parameters.parameter1  = value1
 
->> Test fetching a single parameter (first one)...
-parse parameter: --parameter1 value1
+>> Test fetching a single parameter
+value for parameter parameter2: value2
+parse parameter: --parameter2 value2
 
 >> Test fetching attributes
 # arguments: 1
@@ -306,6 +305,7 @@ The parsed arguments: '-q '
 >> Test fetching all parameters...
 # parameters: 2
 The parsed parameters: '--parameter1 value1 --parameter2 value2 '
+
 >> Error handling
 function::nam does not exist = null
 ```

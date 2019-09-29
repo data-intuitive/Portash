@@ -6,6 +6,8 @@
 # |  __/ (_) | |  | || (_| |_\__ \ | | |
 # |_|   \___/|_|   \__\__,_(_)___/_| |_|
 
+# v 0.1.0
+
 echoerr() { echo "$@" 1>&2; }
 
 # Prefix for dry-running
@@ -150,20 +152,27 @@ parse_arguments() {
 # ------------------------------------------------
 parse_parameter() {
   local input=$1
-  parameter=$(echo "$input" | yq r - -- "name" 2> /dev/null)
+  local path=$2
+  local parameter=$3
+  value=$(echo "$input" | yq r - -- "$path.$parameter" 2> /dev/null)
   ret=$?
   if [ $ret -ne 0 ]; then
-    echoerr "YAML/JSON parsing error in parse_parameter() name, please check input"
+    echoerr "YAML/JSON parsing error in parse_parameter() value, please check input"
     exit 1
   else
-    value=$(echo "$input" | yq r - -- "value" 2> /dev/null)
-    ret=$?
-    if [ $ret -ne 0 ]; then
-      echoerr "YAML/JSON parsing error in parse_parameter() value, please check input"
-      exit 1
-    else
-      echo -n "--$parameter $value"
-    fi
+    echo -n "--$parameter $value"
+  fi
+}
+
+get_key() {
+  local input=$1
+  key=$(echo "$input" | sed 's/\(w*\):.*/\1/' 2> /dev/null)
+  ret=$?
+  if [ $ret -ne 0 ]; then
+    echoerr "Parsing error in get_key() value, please check input: $input"
+    exit 1
+  else
+    echo -n "$key"
   fi
 }
 
@@ -181,7 +190,7 @@ nr_parameters() {
   local N=0
   if [ "$parameters" != "null" ]; then
     # Number of parameters
-    N=$(echo "$parameters" | yq r - -- '[*].name' | wc -l | xargs)
+    N=$(echo "$parameters" | wc -l | xargs)
   fi
   echo -n "$N"
  }
@@ -204,11 +213,9 @@ parse_parameters() {
   fi
   # Loop over members of parameter array
   if [ "$N" -gt 0 ]; then
-    for ((i=0; i<$N; i++))
+    for par in $(get_path "$input" "$path"| sed 's/\(w*\):.*/\1/');
     do
-      local this_path="$path"\[$i\]
-      local this_parameter=$(get_path "$input" "$this_path")
-      echo -n $(parse_parameter "$this_parameter")
+      echo -n $(parse_parameter "$input" "$path" "$par")
       echo -n " "
     done
   else
@@ -298,7 +305,7 @@ main() {
     if ! [ -z "$input" ]; then
       echo "$input" > /tmp/inputf.yaml
       inputf="/tmp/inputf.yaml"
-      input=$(yq m "$inputf" "$defaults")
+      input=$(yq m -x "$defaults" "$inputf")
       rm /tmp/inputf.yaml
     else
       input=$(cat "$defaults")
